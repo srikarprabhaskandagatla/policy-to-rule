@@ -1,4 +1,42 @@
-# PolicyToRule
+<h1 align="center">
+  <br>
+  PolicyToRule
+  <br>
+</h1>
+
+<h4 align="center">Convert written healthcare billing policy into executable rules — then run them against claims for instant adjudication.</h4>
+
+<p align="center">
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python">
+  </a>
+  <a href="https://streamlit.io/">
+    <img src="https://img.shields.io/badge/-Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white" alt="Streamlit">
+  </a>
+  <a href="https://litellm.ai/">
+    <img src="https://img.shields.io/badge/-LiteLLM-6C47FF?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyTDIgN2wxMCA1IDEwLTV6TTIgMTdsOSA1IDktNXYtNWwtOSA1LTktNXoiLz48L3N2Zz4=&logoColor=white" alt="LiteLLM">
+  </a>
+  <a href="https://groq.com/">
+    <img src="https://img.shields.io/badge/-Groq-F55036?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PC9zdmc+&logoColor=white" alt="Groq">
+  </a>
+  <a href="https://ai.google.dev/">
+    <img src="https://img.shields.io/badge/-Gemini-4285F4?style=flat-square&logo=google&logoColor=white" alt="Gemini">
+  </a>
+</p>
+
+<p align="center">
+  <a href="#why-this-matters-in-practice">Why It Matters</a>
+  •
+  <a href="#pipeline">Pipeline</a>
+  •
+  <a href="#run">Run</a>
+  •
+  <a href="#files">Files</a>
+  •
+  <a href="#scope--honesty">Scope</a>
+</p>
+
+---
 
 Topic: *Content Management in Health Care - Conversion of Written Policy into Programming Languages, Rules, or Models.*
 
@@ -41,15 +79,21 @@ streamlit run app.py
 
 ### Optional: live LLM mode
 
-Set one of:
+Copy `.env.example` to `.env`, uncomment your provider, and fill in your key:
 
 ```bash
-export ANTHROPIC_API_KEY=...   
-# or
-export OPENAI_API_KEY=...     
+cp .env.example .env
+# edit .env - pick Groq, Gemini, Anthropic, or OpenAI
 ```
 
-Then toggle **"Use live LLM"** in the sidebar. If the call fails, the app falls
+Then load the env and run:
+
+```bash
+export $(cat .env | grep -v '#' | xargs)
+streamlit run app.py
+```
+
+Toggle **"Use live LLM"** in the sidebar. If the call fails, the app falls
 back to the mock extractor so the demo never crashes.
 
 ## Files
@@ -60,6 +104,7 @@ back to the mock extractor so the demo never crashes.
 | `extractor.py`   | Policy to structured rule (mock + optional LLM)    |
 | `rule_engine.py` | Applies a rule to claims; produces decisions       |
 | `samples.py`     | Sample policies and claims                         |
+| `.env.example`   | Template for API keys (Groq, Gemini, Anthropic, OpenAI) |
 
 ## Scope & honesty
 
