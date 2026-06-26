@@ -1,4 +1,4 @@
 streamlit>=1.40
+
 # Optional, only needed if live LLM toggle is needed:
-# anthropic>=0.40
-# openai>=1.50
+litellm>=1.40
