@@ -109,19 +109,33 @@ if st.button("Run rule against claims"):
 
         if claims:
             results = adjudicate(st.session_state.rule, claims)
-            n_flag = sum(1 for r in results if r["decision"] == "DENY")
-            label = "Claims denied" if n_flag > 0 else "All claims approved"
-            st.metric(label, f"{n_flag} / {len(results)}")
-            st.dataframe(
-                [
-                    {
-                        "claim_id": r["claim_id"],
-                        "patient": r["patient_id"],
-                        "code": r["code"],
-                        "decision": r["decision"],
-                        "reason": r["reason"],
-                    }
-                    for r in results
-                ],
-                use_container_width=True,
-            )
+            applicable = [r for r in results if r["decision"] != "NOT_APPLICABLE"]
+            skipped = len(results) - len(applicable)
+
+            n_deny = sum(1 for r in applicable if r["decision"] == "DENY")
+            n_pay = sum(1 for r in applicable if r["decision"] == "PAY")
+
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Evaluated", len(applicable))
+            col2.metric("Approved (PAY)", n_pay)
+            col3.metric("Denied", n_deny)
+
+            if skipped:
+                st.caption(f"{skipped} claim(s) skipped — code not covered by this rule.")
+
+            if applicable:
+                st.dataframe(
+                    [
+                        {
+                            "claim_id": r["claim_id"],
+                            "patient": r["patient_id"],
+                            "code": r["code"],
+                            "decision": r["decision"],
+                            "reason": r["reason"],
+                        }
+                        for r in applicable
+                    ],
+                    use_container_width=True,
+                )
+            else:
+                st.info("No claims match the codes in this rule.")
