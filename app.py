@@ -16,14 +16,16 @@ from samples import SAMPLE_POLICIES, SAMPLE_CLAIMS
 
 st.set_page_config(page_title="PolicyToRule", layout="wide")
 
+st.markdown("<style>[data-testid='stAppDeployButton'] {display:none}</style>", unsafe_allow_html=True)
+
 st.title("PolicyToRule")
 st.caption(
     "Convert written healthcare billing/coding policy into a structured, "
-    "executable rule - then run it against claims. "
+    "executable rule - then run it against claims."
 )
 
 with st.sidebar:
-    st.header("Controls")
+    st.header("Settings")
     use_llm = st.toggle(
         "Use live LLM",
         value=False,
@@ -33,17 +35,24 @@ with st.sidebar:
     if use_llm and not LLM_AVAILABLE:
         st.warning("No API key found. Falling back to mock extractor.")
         use_llm = False
+
     st.markdown("---")
-    st.subheader("Pipeline")
+    st.subheader("About")
+    st.caption(
+        "PolicyToRule is a POC demonstrating how written healthcare billing "
+        "policy can be converted into executable rules and applied to claims - "
+        "a miniature of what a payment-integrity edit does."
+    )
+
+    st.markdown("---")
+    st.subheader("Built by")
     st.markdown(
-        "1. Written policy (text)\n"
-        "2. LLM to structured JSON rule\n"
-        "3. Rule engine runs vs. claims\n"
-        "4. Adjudication results"
+        "**Srikar Prabhas Kandagatla**\n\n"
+        "[LinkedIn](https://www.linkedin.com/in/srikar-prabhas-kandagatla/) · [Portfolio](https://srikarprabhaskandagatla.github.io/)"
     )
 
 
-st.header("1 - Written Policy")
+st.header("Policy Input")
 policy_choice = st.selectbox(
     "Pick a sample policy (or choose 'Custom' to paste your own):",
     list(SAMPLE_POLICIES.keys()) + ["Custom"],
@@ -57,11 +66,11 @@ else:
     )
 
 
-st.header("2 - Structured Rule (machine-readable)")
+st.header("Extracted Rule")
 if "rule" not in st.session_state:
     st.session_state.rule = None
 
-if st.button("Convert policy To rule", type="primary"):
+if st.button("Convert policy to rule", type="primary"):
     if not policy_text.strip():
         st.error("Enter or select a policy first.")
     else:
@@ -87,7 +96,7 @@ if st.session_state.rule:
         st.code(json.dumps(rule, indent=2), language="json")
 
 
-st.header("3 - Sample Claims")
+st.header("Claims")
 st.caption("Edit the JSON below to test different claim scenarios.")
 claims_text = st.text_area(
     "Claims (JSON list)",
@@ -96,7 +105,7 @@ claims_text = st.text_area(
 )
 
 
-st.header("4 - Adjudication Results")
+st.header("Adjudication Results")
 if st.button("Run rule against claims"):
     if not st.session_state.rule:
         st.error("Convert a policy to a rule first (Step 2).")
