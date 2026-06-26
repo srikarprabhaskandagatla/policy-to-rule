@@ -38,9 +38,9 @@ def adjudicate(rule: dict, claims: list) -> list:
         reason = "Allowed"
         decision = "PAY"
 
-        # Only adjudicate claims the rule applies to
+        # Skip claims the rule doesn't cover
         if codes and code not in codes:
-            results.append(_row(c, "PAY", "Rule does not apply to this code"))
+            results.append(_row(c, "NOT_APPLICABLE", "Code not covered by this rule"))
             continue
 
         # eligibility: gender
