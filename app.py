@@ -110,7 +110,8 @@ if st.button("Run rule against claims"):
         if claims:
             results = adjudicate(st.session_state.rule, claims)
             n_flag = sum(1 for r in results if r["decision"] == "DENY")
-            st.metric("Claims flagged (DENY)", f"{n_flag} / {len(results)}")
+            label = "Claims denied" if n_flag > 0 else "All claims approved"
+            st.metric(label, f"{n_flag} / {len(results)}")
             st.dataframe(
                 [
                     {
