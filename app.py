@@ -109,33 +109,29 @@ if st.button("Run rule against claims"):
 
         if claims:
             results = adjudicate(st.session_state.rule, claims)
-            applicable = [r for r in results if r["decision"] != "NOT_APPLICABLE"]
-            skipped = len(results) - len(applicable)
+            n_total = len(results)
+            n_skipped = sum(1 for r in results if r["decision"] == "NOT_APPLICABLE")
+            n_evaluated = n_total - n_skipped
+            n_pay = sum(1 for r in results if r["decision"] == "PAY")
+            n_deny = sum(1 for r in results if r["decision"] == "DENY")
 
-            n_deny = sum(1 for r in applicable if r["decision"] == "DENY")
-            n_pay = sum(1 for r in applicable if r["decision"] == "PAY")
+            col1, col2, col3, col4, col5 = st.columns(5)
+            col1.metric("Total", n_total)
+            col2.metric("Evaluated", n_evaluated)
+            col3.metric("Approved", n_pay)
+            col4.metric("Denied", n_deny)
+            col5.metric("Skipped", n_skipped)
 
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Evaluated", len(applicable))
-            col2.metric("Approved (PAY)", n_pay)
-            col3.metric("Denied", n_deny)
-
-            if skipped:
-                st.caption(f"{skipped} claim(s) skipped — code not covered by this rule.")
-
-            if applicable:
-                st.dataframe(
-                    [
-                        {
-                            "claim_id": r["claim_id"],
-                            "patient": r["patient_id"],
-                            "code": r["code"],
-                            "decision": r["decision"],
-                            "reason": r["reason"],
-                        }
-                        for r in applicable
-                    ],
-                    use_container_width=True,
-                )
-            else:
-                st.info("No claims match the codes in this rule.")
+            st.dataframe(
+                [
+                    {
+                        "claim_id": r["claim_id"],
+                        "patient": r["patient_id"],
+                        "code": r["code"],
+                        "decision": r["decision"],
+                        "reason": r["reason"],
+                    }
+                    for r in results
+                ],
+                use_container_width=True,
+            )
