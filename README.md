@@ -61,7 +61,6 @@ Written policy (English) to Structured rule (JSON) to Claims adjudication
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
 ```
 
 ### Optional: live LLM mode
