@@ -14,9 +14,12 @@ import json
 
 MOCK_AVAILABLE = True
 
-# Live LLM is "available" only if a key is set. We support Anthropic by default;
-# swap in OpenAI by editing _call_llm below.
-LLM_AVAILABLE = bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY"))
+LLM_AVAILABLE = bool(
+    os.environ.get("ANTHROPIC_API_KEY")
+    or os.environ.get("OPENAI_API_KEY")
+    or os.environ.get("GROQ_API_KEY")
+    or os.environ.get("GEMINI_API_KEY")
+)
 
 
 # Mock Extractor
@@ -83,31 +86,16 @@ _SYSTEM = (
 
 
 def _call_llm(text: str) -> dict:
-    # Anthropic path
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        import anthropic
-        client = anthropic.Anthropic()
-        msg = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=1000,
-            system=_SYSTEM,
-            messages=[{"role": "user", "content": text}],
-        )
-        raw = "".join(b.text for b in msg.content if b.type == "text")
-
-    # OpenAI path
-    else:
-        from openai import OpenAI
-        client = OpenAI()
-        resp = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": _SYSTEM},
-                {"role": "user", "content": text},
-            ],
-        )
-        raw = resp.choices[0].message.content
-
+    from litellm import completion
+    model = os.environ.get("LLM_MODEL", "groq/llama-3.1-8b-instant")
+    resp = completion(
+        model=model,
+        messages=[
+            {"role": "system", "content": _SYSTEM},
+            {"role": "user", "content": text},
+        ],
+    )
+    raw = resp.choices[0].message.content
     raw = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
     return json.loads(raw)
 
